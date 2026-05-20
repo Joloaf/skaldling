@@ -1,43 +1,80 @@
 <script lang="ts">
+	import { heroesApi, type CreateHeroResponse } from '$lib/api/heroes';
+	import type { ProblemDetails } from '$lib/api/client';
+
+	// Making sure we handle unknown values for Object.entries
+	function fieldEntries(errors: Record<string, string[]> | undefined): [string, string[]][] {
+		return errors ? Object.entries(errors) : [];
+	}
+
+	// Discriminated union — page is in exactly one of these states at any time.
+	type CreateState =
+		| { status: 'idle' }
+		| { status: 'submitting' }
+		| { status: 'success'; hero: CreateHeroResponse }
+		| { status: 'error'; problem: ProblemDetails };
+
 	let name = $state('');
-	let result: { id: string; name: string; createdAt: string; } | null = $state(null);
-	let error: string | null = $state(null);
+	let pageState = $state<CreateState>({ status: 'idle' });
 
 	async function createHero() {
-		error = null;
-		try {
-			const response = await fetch('http://localhost:5132/api/heroes', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name })
-			});
+		pageState = { status: 'submitting' };
 
-			if (!response.ok) {
-				const body = await response.json();
-				error = JSON.stringify(body);
-				return;
-			}
-			result = await response.json();
-		} catch (e) {
-			error = e instanceof Error ? e.message : 'Unknown error';
+		const result = await heroesApi.create({ name });
+
+		if (result.ok) {
+			pageState = { status: 'success', hero: result.data };
+		} else {
+			pageState = { status: 'error', problem: result.problem };
 		}
+	}
+
+	function reset() {
+		name = '';
+		pageState = { status: 'idle' };
 	}
 </script>
 
-<h1>Skaldling - Create a hero</h1>
+<h1>Skaldling — Create a hero</h1>
 
 <form onsubmit={(e) => { e.preventDefault(); createHero(); }}>
 	<label>
 		Name:
-		<input type="text" bind:value={name} required />
+		<input
+			type="text"
+			bind:value={name}
+			required
+			disabled={pageState.status === 'submitting'}
+		/>
 	</label>
-	<button type="submit">Create hero</button>
+	<button type="submit" disabled={pageState.status === 'submitting'}>
+		{pageState.status === 'submitting' ? 'Creating...' : 'Create hero'}
+	</button>
 </form>
 
-{#if result}
-	<p>Created: {result.name} (id {result.id})</p>
+{#if pageState.status === 'success'}
+	<p>Created: {pageState.hero.name} (id {pageState.hero.id})</p>
+	<button type="button" onclick={reset}>Create another</button>
 {/if}
 
-{#if error}
-	<p style="color: crimson">{error}</p>
+{#if pageState.status === 'error'}
+	<div style="color: crimson">
+		<p><strong>{pageState.problem.title ?? 'Error'}</strong></p>
+		{#if pageState.problem.errors}
+			<ul>
+				{#each fieldEntries(pageState.problem.errors) as [field, messages] (field)}
+					<li>
+						<strong>{field}:</strong>
+						<ul>
+							{#each messages as message (message)}
+								<li>{message}</li>
+							{/each}
+						</ul>
+					</li>
+				{/each}
+			</ul>
+		{:else if pageState.problem.detail}
+			<p>{pageState.problem.detail}</p>
+		{/if}
+	</div>
 {/if}
