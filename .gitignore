@@ -1,0 +1,59 @@
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Build output
+dist/
+build/
+out/
+.next/
+.nuxt/
+
+# Logs
+logs/
+*.log
+
+# Misc
+.cache/
+.tmp/
+*.pid
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Local app config overrides (not the shared appsettings.Development.json)
+appsettings.local.json
+
+# SvelteKit
+.svelte-kit/
+
+# JetBrains (Rider / WebStorm - .idea/ already covered above)
+*.iml
+*.DotSettings.user

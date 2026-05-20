@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Skaldling.Api/Skaldling.Api.csproj" />
+  <Project Path="Skaldling.Tests/Skaldling.Tests.csproj" />
+</Solution>
