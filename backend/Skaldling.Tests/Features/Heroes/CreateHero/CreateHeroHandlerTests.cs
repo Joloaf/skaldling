@@ -3,6 +3,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Skaldling.Api.Features.Heroes.CreateHero;
 using Skaldling.Api.Infrastructure.Persistence;
+using Microsoft.Extensions.Time.Testing;
 
 namespace Skaldling.Tests.Features.Heroes.CreateHero;
 
@@ -52,12 +53,4 @@ public class CreateHeroHandlerTests : IDisposable  // Fresh SQLite db for each t
         _db.Dispose();
         _connection.Dispose();
     }
-}
-
-// Setting up the FakeTimeProvider
-internal class FakeTimeProvider : TimeProvider
-{
-    private readonly DateTimeOffset _now;
-    public FakeTimeProvider(DateTimeOffset now) => _now = now;
-    public override DateTimeOffset GetUtcNow() => _now;
 }

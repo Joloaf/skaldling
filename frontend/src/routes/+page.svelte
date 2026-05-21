@@ -19,9 +19,7 @@
 
 	async function createHero() {
 		pageState = { status: 'submitting' };
-
 		const result = await heroesApi.create({ name });
-
 		if (result.ok) {
 			pageState = { status: 'success', hero: result.data };
 		} else {
@@ -35,7 +33,7 @@
 	}
 </script>
 
-<h1>Skaldling — Create a hero</h1>
+<h1>Skaldling - Create a hero</h1>
 
 <form onsubmit={(e) => { e.preventDefault(); createHero(); }}>
 	<label>

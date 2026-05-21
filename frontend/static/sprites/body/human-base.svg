@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+    <!-- human-base - body archetype placeholder -->
+    <rect x="64" y="60" width="128" height="180" rx="32" ry="32"
+          fill="#F4ECDA" stroke="#2B1F1A" stroke-width="3"/>
+</svg>

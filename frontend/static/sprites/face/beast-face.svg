@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+    <!-- beast-face — face placeholder -->
+    <ellipse cx="128" cy="110" rx="40" ry="50"
+             fill="#F9BA65" stroke="#2B1F1A" stroke-width="3"/>
+</svg>

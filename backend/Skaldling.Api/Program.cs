@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Skaldling.Api.Features.Heroes.CreateHero;
+using Skaldling.Api.Features.Sprites.ListSprites;
 using Skaldling.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,8 +22,9 @@ builder.Services.AddSingleton(TimeProvider.System);
 // Register FluentValidation (scan assembly for all validators)
 builder.Services.AddValidatorsFromAssemblyContaining<CreateHeroValidator>();
 
-// Register hero feature handlers
+// Register feature handlers
 builder.Services.AddScoped<CreateHeroHandler>();
+builder.Services.AddScoped<ListSpritesHandler>();
 
 // SvelteKit CORS registration
 builder.Services.AddCors(options =>
@@ -51,7 +53,8 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-// Map hero feature endpoints
+// Map feature endpoints
 app.MapCreateHero();
+app.MapListSprites();
 
 app.Run();
