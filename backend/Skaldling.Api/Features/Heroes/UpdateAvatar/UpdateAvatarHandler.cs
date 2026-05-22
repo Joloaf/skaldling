@@ -2,25 +2,32 @@ using Microsoft.EntityFrameworkCore;
 using Skaldling.Api.Domain;
 using Skaldling.Api.Infrastructure.Persistence;
 
-namespace Skaldling.Api.Features.Heroes.CreateHero;
+namespace Skaldling.Api.Features.Heroes.UpdateAvatar;
 
-public class CreateHeroHandler
+public class UpdateAvatarHandler
 {
     private readonly SkaldlingDbContext _db;
     private readonly TimeProvider _time;
 
-    public CreateHeroHandler(SkaldlingDbContext db, TimeProvider time)
+    public UpdateAvatarHandler(SkaldlingDbContext db, TimeProvider time)
     {
         _db = db;
         _time = time;
     }
 
-    public enum Outcome { HeroCreated, UnknownSpriteIds, DuplicateTypes, MissingType }
+    public enum Outcome { Update, HeroNotFound, UnknownSpriteIds, DuplicatedTypes, MissingTypes }
 
-    public async Task<(Outcome outcome, CreateHeroResponse? response)> HandleAsync(
-        CreateHeroCommand command,
+    public async Task<(Outcome outcome, UpdateAvatarResponse? response)> HandleAsync(
+        Guid heroId,
+        UpdateAvatarCommand command,
         CancellationToken cancellationToken)
     {
+        var hero = await _db.Heroes.FirstOrDefaultAsync(h => h.Id == heroId, cancellationToken);
+        if (hero is null)
+        {
+            return (Outcome.HeroNotFound, null);
+        }
+
         var sprites = await _db.Sprites
             .Where(s => command.SpriteIds.Contains(s.Id))
             .ToListAsync(cancellationToken);
@@ -32,30 +39,20 @@ public class CreateHeroHandler
         var typeGroups = sprites.GroupBy(s => s.Type).ToList();
         if (typeGroups.Any(g => g.Count() > 1))
         {
-            return (Outcome.DuplicateTypes, null);
+            return (Outcome.DuplicatedTypes, null);
         }
 
         var typesPresent = typeGroups.Select(g => g.Key).ToHashSet();
         var typesRequired = Enum.GetValues<SpriteType>().ToHashSet();
         if (!typesRequired.SetEquals(typesPresent))
         {
-            return (Outcome.MissingType, null);
+            return (Outcome.MissingTypes, null);
         }
 
-        var now = _time.GetUtcNow();
-        var hero = new Hero
-        {
-            Id = Guid.NewGuid(),
-            Name = command.Name,
-            AchievementPoints = 0,
-            CreatedAt = now,
-            UpdatedAt = now,
-            AvatarConfig = new AvatarConfig(command.SpriteIds),
-        };
-
-        _db.Heroes.Add(hero);
+        hero.AvatarConfig = new AvatarConfig(command.SpriteIds);
+        hero.UpdatedAt = _time.GetUtcNow();
         await _db.SaveChangesAsync(cancellationToken);
 
-        return (Outcome.HeroCreated, new CreateHeroResponse(hero.Id, hero.Name, hero.CreatedAt, command.SpriteIds));
+        return (Outcome.Update, new UpdateAvatarResponse(hero.Id, command.SpriteIds, hero.UpdatedAt));
     }
 }

@@ -19,6 +19,14 @@ public class SkaldlingDbContext : DbContext
             entity.Property(h => h.Name).IsRequired().HasMaxLength(100);
             entity.Property(h => h.CreatedAt).IsRequired();
             entity.Property(h => h.UpdatedAt).IsRequired();
+            if (Database.IsNpgsql())
+            {
+                entity.OwnsOne(h => h.AvatarConfig, owned => owned.ToJson());
+            }
+            else
+            {
+                entity.Ignore(h => h.AvatarConfig);
+            }
         });
 
         modelBuilder.Entity<Sprite>(entity =>

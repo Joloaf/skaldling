@@ -1,3 +1,3 @@
 namespace Skaldling.Api.Features.Heroes.CreateHero;
 
-public record CreateHeroCommand(string Name);
+public record CreateHeroCommand(string Name, Guid[] SpriteIds);
