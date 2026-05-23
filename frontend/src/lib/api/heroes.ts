@@ -23,6 +23,11 @@ export type HeroDto = {
 	avatarSpriteIds: string[];
 };
 
+// GET ALL /api/heroes (Reusing HeroDto, will split into HeroSummaryDto once list/detail shapes aren't identical)
+export type ListHeroesResponse = {
+	heroes: HeroDto[];
+}
+
 // PUT /api/heroes/{id}/avatar
 export type UpdateAvatarCommand = {
 	spriteIds: string[];
@@ -40,6 +45,9 @@ export const heroesApi = {
 	},
 	get(id: string): Promise<ApiResult<HeroDto>> {
 		return apiGet<HeroDto>(`/api/heroes/${id}`);
+	},
+	list(): Promise<ApiResult<ListHeroesResponse>> {
+		return apiGet<ListHeroesResponse>('/api/heroes');
 	},
 	updateAvatar(id: string, command: UpdateAvatarCommand): Promise<ApiResult<UpdateAvatarResponse>> {
 		return apiPut<UpdateAvatarResponse, UpdateAvatarCommand>(`/api/heroes/${id}/avatar`, command);
