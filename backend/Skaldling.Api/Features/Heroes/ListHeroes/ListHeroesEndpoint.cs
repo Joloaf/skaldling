@@ -8,7 +8,8 @@ public static class ListHeroesEndpoint
             ListHeroesHandler handler,
             CancellationToken cancellationToken) =>
         {
-            var response = await handler.HandleAsync(cancellationToken);
+            var query = new ListHeroesQuery();
+            var response = await handler.HandleAsync(query, cancellationToken);
             return Results.Ok(response);
         });
 

@@ -12,7 +12,9 @@ public class ListHeroesHandler
         _db = db;
     }
 
-    public async Task<ListHeroesResponse> HandleAsync(CancellationToken cancellationToken)
+    public async Task<ListHeroesResponse> HandleAsync(
+        ListHeroesQuery query,
+        CancellationToken cancellationToken)
     {
         var heroes = await _db.Heroes
             .AsNoTracking()
