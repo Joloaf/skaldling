@@ -79,6 +79,17 @@ export function apiPost<TResponse, TBody>(
 	});
 }
 
+// PUT helper
+export function apiPut<TResponse, TBody>(
+	path: string,
+	body: TBody
+): Promise<ApiResult<TResponse>> {
+	return apiRequest<TResponse>(path, {
+		method: 'PUT',
+		body: JSON.stringify(body)
+	});
+}
+
 // GET helper
 export function apiGet<TResponse>(path: string): Promise<ApiResult<TResponse>> {
 	return apiRequest<TResponse>(path, { method: 'GET' });

@@ -1,78 +1,118 @@
 <script lang="ts">
-	import { heroesApi, type CreateHeroResponse } from '$lib/api/heroes';
+	import { heroesApi } from '$lib/api/heroes';
+	import { spritesApi, type SpriteDto } from '$lib/api/sprites';
 	import type { ProblemDetails } from '$lib/api/client';
+	import AvatarBuilder from '$lib/components/AvatarBuilder.svelte';
+	import { resolve } from '$app/paths';
 
-	// Making sure we handle unknown values for Object.entries
-	function fieldEntries(errors: Record<string, string[]> | undefined): [string, string[]][] {
-		return errors ? Object.entries(errors) : [];
-	}
-
-	// Discriminated union — page is in exactly one of these states at any time.
-	type CreateState =
-		| { status: 'idle' }
-		| { status: 'submitting' }
-		| { status: 'success'; hero: CreateHeroResponse }
+	type PageState =
+		| { status: 'loading'}
+		| { status: 'loaded'; catalog: SpriteDto[] }
 		| { status: 'error'; problem: ProblemDetails };
 
-	let name = $state('');
-	let pageState = $state<CreateState>({ status: 'idle' });
+	type CreateState =
+		| { status: 'idle' }
+		| { status: 'creating' }
+		| { status: 'success'; heroId: string; heroName: string }
+		| { status: 'error'; problem: ProblemDetails };
 
-	async function createHero() {
-		pageState = { status: 'submitting' };
-		const result = await heroesApi.create({ name });
-		if (result.ok) {
-			pageState = { status: 'success', hero: result.data };
-		} else {
+	let pageState: PageState = $state({ status: 'loading' });
+	let createState: CreateState = $state({ status: 'idle' });
+	let name = $state('');
+	let selections: Record<string, string> = $state({});
+
+	const DEFAULTS: Record<string, string> = {
+		BodyArchetype: 'human-base',
+		Face: 'human-face',
+		Eyes: 'brown-eyes',
+		Hair: 'short-black-hair',
+		OutfitTop: 'leather-vest',
+		OutfitBottom: 'brown-trousers',
+		Accessory: 'feathered-cap'
+	};
+
+	$effect(() => {
+		loadCatalog();
+	});
+
+	async function loadCatalog() {
+		pageState = { status: 'loading' };
+		const result = await spritesApi.list();
+		if (!result.ok) {
 			pageState = { status: 'error', problem: result.problem };
+			return;
 		}
+		const catalog = result.data.sprites;
+		const initial: Record<string, string> = {};
+		for (const [type, spriteName] of Object.entries(DEFAULTS)) {
+			const sprite = catalog.find((s) => s.name === spriteName);
+			if (sprite) initial[type] = sprite.id;
+		}
+		selections = initial;
+		pageState = { status: 'loaded', catalog };
 	}
 
-	function reset() {
-		name = '';
-		pageState = { status: 'idle' };
+	async function createHero() {
+		createState = { status: 'creating' };
+		const spriteIds = Object.values(selections);
+		const result = await heroesApi.create({ name, spriteIds });
+		if (result.ok) {
+			createState = {
+				status: 'success',
+				heroId: result.data.id,
+				heroName: result.data.name
+			};
+		} else {
+			createState = { status: 'error', problem: result.problem };
+		}
 	}
 </script>
 
-<h1>Skaldling - Create a hero</h1>
+<h1>Create a hero</h1>
 
-<form onsubmit={(e) => { e.preventDefault(); createHero(); }}>
-	<label>
-		Name:
-		<input
-			type="text"
-			bind:value={name}
-			required
-			disabled={pageState.status === 'submitting'}
-		/>
-	</label>
-	<button type="submit" disabled={pageState.status === 'submitting'}>
-		{pageState.status === 'submitting' ? 'Creating...' : 'Create hero'}
-	</button>
-</form>
+{#if pageState.status === 'loading'}
+	<p>Loading...</p>
+{:else if pageState.status === 'error'}
+	<p style="color: crimson">Failed to load sprite catalog: {pageState.problem.title ?? 'unknown error'}</p>
+{:else if pageState.status === 'loaded'}
+	<form onsubmit={(e) => { e.preventDefault(); createHero(); }}>
+		<div style="margin-bottom: 1em;">
+			<label>
+				Hero Name:
+				<input
+					type="text"
+					bind:value={name}
+					required
+					disabled={createState.status === 'creating'}
+				/>
+			</label>
+		</div>
 
-{#if pageState.status === 'success'}
-	<p>Created: {pageState.hero.name} (id {pageState.hero.id})</p>
-	<button type="button" onclick={reset}>Create another</button>
-{/if}
+		<AvatarBuilder catalog={pageState.catalog} bind:selections={selections} />
 
-{#if pageState.status === 'error'}
-	<div style="color: crimson">
-		<p><strong>{pageState.problem.title ?? 'Error'}</strong></p>
-		{#if pageState.problem.errors}
-			<ul>
-				{#each fieldEntries(pageState.problem.errors) as [field, messages] (field)}
-					<li>
-						<strong>{field}:</strong>
-						<ul>
-							{#each messages as message (message)}
-								<li>{message}</li>
-							{/each}
-						</ul>
-					</li>
-				{/each}
-			</ul>
-		{:else if pageState.problem.detail}
-			<p>{pageState.problem.detail}</p>
-		{/if}
-	</div>
+		<div style="margin-top: 2rem;">
+			<button type="submit" disabled={createState.status === 'creating' || !name.trim()}>
+				{createState.status === 'creating' ? 'Creating...' : 'Create hero'}
+			</button>
+		</div>
+	</form>
+
+	{#if createState.status === 'success'}
+		{@const editUrl = resolve('/heroes/[id]/avatar-builder', { id: createState.heroId })}
+		<p style="color: forestgreen; margin-top: 2rem;">
+			Hero "{createState.heroName}" created!
+			<a href={editUrl}>Edit Hero Avatar</a>
+		</p>
+	{:else if createState.status === 'error'}
+		<div style="color: crimson; margin-top: 2rem;">
+			<p>Failed to create hero: {createState.problem.title ?? 'unknown error'}</p>
+			{#if createState.problem.errors}
+				<ul>
+					{#each Object.entries(createState.problem.errors) as [field, messages] (field)}
+						<li><strong>{field}:</strong> {messages.join(', ')}</li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
+	{/if}
 {/if}
