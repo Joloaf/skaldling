@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Skaldling.Api.Features.Heroes.CreateHero;
 using Skaldling.Api.Features.Heroes.GetHero;
+using Skaldling.Api.Features.Heroes.ListHeroes;
 using Skaldling.Api.Features.Heroes.UpdateAvatar;
 using Skaldling.Api.Features.Sprites.ListSprites;
 using Skaldling.Api.Infrastructure.Persistence;
@@ -27,6 +28,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateHeroValidator>();
 // Register feature handlers
 builder.Services.AddScoped<CreateHeroHandler>();
 builder.Services.AddScoped<GetHeroHandler>();
+builder.Services.AddScoped<ListHeroesHandler>();
 builder.Services.AddScoped<UpdateAvatarHandler>();
 builder.Services.AddScoped<ListSpritesHandler>();
 
@@ -60,6 +62,7 @@ using (var scope = app.Services.CreateScope())
 // Map feature endpoints
 app.MapCreateHero();
 app.MapGetHero();
+app.MapListHeroes();
 app.MapUpdateAvatar();
 app.MapListSprites();
 
