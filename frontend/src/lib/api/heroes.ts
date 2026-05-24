@@ -3,7 +3,7 @@ import { apiGet, apiPost, apiPut, type ApiResult } from './client';
 // POST /api/heroes
 export type CreateHeroCommand = {
 	name: string;
-	spriteIds: string[];
+	avatarSpriteIds: string[];
 };
 
 export type CreateHeroResponse = {
@@ -30,12 +30,12 @@ export type ListHeroesResponse = {
 
 // PUT /api/heroes/{id}/avatar
 export type UpdateAvatarCommand = {
-	spriteIds: string[];
+	avatarSpriteIds: string[];
 }
 
 export type UpdateAvatarResponse = {
 	heroId: string;
-	spriteIds: string[];
+	avatarSpriteIds: string[];
 	updatedAt: string;
 }
 

@@ -54,9 +54,9 @@
 	}
 
 	async function saveAvatar() {
-		const spriteIds = Object.values(selections);
+		const avatarSpriteIds = Object.values(selections);
 		saveState = { status: 'saving' };
-		const result = await heroesApi.updateAvatar(heroId, { spriteIds });
+		const result = await heroesApi.updateAvatar(heroId, { avatarSpriteIds });
 		if (result.ok) {
 			saveState = { status: 'saved' };
 			setTimeout(() => {

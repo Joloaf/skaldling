@@ -54,8 +54,8 @@
 
 	async function createHero() {
 		createState = { status: 'creating' };
-		const spriteIds = Object.values(selections);
-		const result = await heroesApi.create({ name, spriteIds });
+		const avatarSpriteIds = Object.values(selections);
+		const result = await heroesApi.create({ name, avatarSpriteIds });
 		if (result.ok) {
 			createState = {
 				status: 'success',

@@ -28,7 +28,7 @@ public static class CreateHeroEndpoint
                 CreateHeroHandler.Outcome.DuplicateTypes =>
                     Results.Problem(title: "Hero avatar selection cannot include two or more sprites of the same type.",
                         statusCode: 422),
-                CreateHeroHandler.Outcome.MissingType =>
+                CreateHeroHandler.Outcome.MissingTypes =>
                     Results.Problem(title: "Hero avatar must include one sprite per type.", statusCode: 422),
                 _ => Results.StatusCode(500)
             };

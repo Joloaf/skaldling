@@ -15,7 +15,7 @@ public class UpdateAvatarHandler
         _time = time;
     }
 
-    public enum Outcome { Update, HeroNotFound, UnknownSpriteIds, DuplicatedTypes, MissingTypes }
+    public enum Outcome { Updated, HeroNotFound, UnknownSpriteIds, DuplicateTypes, MissingTypes }
 
     public async Task<(Outcome outcome, UpdateAvatarResponse? response)> HandleAsync(
         Guid heroId,
@@ -29,9 +29,9 @@ public class UpdateAvatarHandler
         }
 
         var sprites = await _db.Sprites
-            .Where(s => command.SpriteIds.Contains(s.Id))
+            .Where(s => command.AvatarSpriteIds.Contains(s.Id))
             .ToListAsync(cancellationToken);
-        if (sprites.Count != command.SpriteIds.Length)
+        if (sprites.Count != command.AvatarSpriteIds.Length)
         {
             return (Outcome.UnknownSpriteIds, null);
         }
@@ -39,7 +39,7 @@ public class UpdateAvatarHandler
         var typeGroups = sprites.GroupBy(s => s.Type).ToList();
         if (typeGroups.Any(g => g.Count() > 1))
         {
-            return (Outcome.DuplicatedTypes, null);
+            return (Outcome.DuplicateTypes, null);
         }
 
         var typesPresent = typeGroups.Select(g => g.Key).ToHashSet();
@@ -49,10 +49,10 @@ public class UpdateAvatarHandler
             return (Outcome.MissingTypes, null);
         }
 
-        hero.AvatarConfig = new AvatarConfig(command.SpriteIds);
+        hero.AvatarConfig = new AvatarConfig(command.AvatarSpriteIds);
         hero.UpdatedAt = _time.GetUtcNow();
         await _db.SaveChangesAsync(cancellationToken);
 
-        return (Outcome.Update, new UpdateAvatarResponse(hero.Id, command.SpriteIds, hero.UpdatedAt));
+        return (Outcome.Updated, new UpdateAvatarResponse(hero.Id, command.AvatarSpriteIds, hero.UpdatedAt));
     }
 }

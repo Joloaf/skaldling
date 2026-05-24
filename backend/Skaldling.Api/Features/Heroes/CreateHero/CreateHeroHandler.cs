@@ -15,16 +15,16 @@ public class CreateHeroHandler
         _time = time;
     }
 
-    public enum Outcome { HeroCreated, UnknownSpriteIds, DuplicateTypes, MissingType }
+    public enum Outcome { HeroCreated, UnknownSpriteIds, DuplicateTypes, MissingTypes }
 
     public async Task<(Outcome outcome, CreateHeroResponse? response)> HandleAsync(
         CreateHeroCommand command,
         CancellationToken cancellationToken)
     {
         var sprites = await _db.Sprites
-            .Where(s => command.SpriteIds.Contains(s.Id))
+            .Where(s => command.AvatarSpriteIds.Contains(s.Id))
             .ToListAsync(cancellationToken);
-        if (sprites.Count != command.SpriteIds.Length)
+        if (sprites.Count != command.AvatarSpriteIds.Length)
         {
             return (Outcome.UnknownSpriteIds, null);
         }
@@ -39,7 +39,7 @@ public class CreateHeroHandler
         var typesRequired = Enum.GetValues<SpriteType>().ToHashSet();
         if (!typesRequired.SetEquals(typesPresent))
         {
-            return (Outcome.MissingType, null);
+            return (Outcome.MissingTypes, null);
         }
 
         var now = _time.GetUtcNow();
@@ -50,12 +50,12 @@ public class CreateHeroHandler
             AchievementPoints = 0,
             CreatedAt = now,
             UpdatedAt = now,
-            AvatarConfig = new AvatarConfig(command.SpriteIds),
+            AvatarConfig = new AvatarConfig(command.AvatarSpriteIds),
         };
 
         _db.Heroes.Add(hero);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return (Outcome.HeroCreated, new CreateHeroResponse(hero.Id, hero.Name, hero.CreatedAt, command.SpriteIds));
+        return (Outcome.HeroCreated, new CreateHeroResponse(hero.Id, hero.Name, hero.CreatedAt, command.AvatarSpriteIds));
     }
 }

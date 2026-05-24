@@ -22,11 +22,11 @@ public static class UpdateAvatarEndpoint
             var (outcome, response) = await handler.HandleAsync(id, command, cancellationToken);
             return outcome switch
             {
-                UpdateAvatarHandler.Outcome.Update => Results.Ok(response),
+                UpdateAvatarHandler.Outcome.Updated => Results.Ok(response),
                 UpdateAvatarHandler.Outcome.HeroNotFound => Results.NotFound(),
                 UpdateAvatarHandler.Outcome.UnknownSpriteIds =>
                     Results.Problem(title: "One or more sprites are not found in the catalog.", statusCode: 422),
-                UpdateAvatarHandler.Outcome.DuplicatedTypes =>
+                UpdateAvatarHandler.Outcome.DuplicateTypes =>
                     Results.Problem(title: "Hero avatar selection cannot include two or more sprites of the same type.",
                         statusCode: 422),
                 UpdateAvatarHandler.Outcome.MissingTypes =>

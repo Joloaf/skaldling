@@ -36,8 +36,8 @@
 		};
 	}
 
-	function selectedInLayerOrder(spriteIds: string[], catalog: SpriteDto[]) {
-		return spriteIds
+	function selectedInLayerOrder(avatarSpriteIds: string[], catalog: SpriteDto[]) {
+		return avatarSpriteIds
 			.map((id) => catalog.find((s) => s.id === id))
 			.filter((s): s is SpriteDto => s !== undefined)
 			.sort((a, b) => a.layer - b.layer);
