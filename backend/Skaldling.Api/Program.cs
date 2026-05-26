@@ -6,6 +6,7 @@ using Skaldling.Api.Features.Heroes.GetHero;
 using Skaldling.Api.Features.Heroes.ListHeroes;
 using Skaldling.Api.Features.Heroes.UpdateAvatar;
 using Skaldling.Api.Features.Sprites.ListSprites;
+using Skaldling.Api.Features.Themes.ListThemes;
 using Skaldling.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +32,7 @@ builder.Services.AddScoped<GetHeroHandler>();
 builder.Services.AddScoped<ListHeroesHandler>();
 builder.Services.AddScoped<UpdateAvatarHandler>();
 builder.Services.AddScoped<ListSpritesHandler>();
+builder.Services.AddScoped<ListThemesHandler>();
 
 // SvelteKit CORS registration
 builder.Services.AddCors(options =>
@@ -65,5 +67,6 @@ app.MapGetHero();
 app.MapListHeroes();
 app.MapUpdateAvatar();
 app.MapListSprites();
+app.MapListThemes();
 
 app.Run();

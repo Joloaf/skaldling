@@ -4,6 +4,7 @@ public class Hero
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    public int ReadingAge { get; set; }
     public int AchievementPoints { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
