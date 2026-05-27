@@ -25,6 +25,7 @@ public class ListHeroesHandler
             .Select(h => new HeroSummaryDto(
                 h.Id,
                 h.Name,
+                h.ReadingAge,
                 h.AchievementPoints,
                 h.CreatedAt,
                 h.UpdatedAt,

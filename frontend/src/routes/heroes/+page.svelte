@@ -58,7 +58,8 @@
 	{:else}
 		<ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem;">
 			{#each pageState.heroes as hero (hero.id)}
-				{@const editUrl = resolve('/heroes/[id]/avatar-builder', { id: hero.id })}
+				{@const editAvatarUrl = resolve('/heroes/[id]/avatar-builder', { id: hero.id })}
+				{@const editDetailsUrl = resolve('/heroes/[id]/details', { id: hero.id })}
 				<li style="border: 1px solid #ddd; padding: 0.75rem; border-radius: 6px;">
 					<div style="position: relative; width: 128px; height: 128px; margin: 0 auto; background: #fafafa; border: 1px solid #eee;">
 						{#each selectedInLayerOrder(hero.avatarSpriteIds, pageState.catalog) as sprite (sprite.id)}
@@ -71,10 +72,10 @@
 					</div>
 					<p style="margin: 0.5rem 0 0; text-align: center; font-weight: 600;">{hero.name}</p>
 					<p style="margin: 0.25rem 0 0; text-align: center; font-size: 0.85rem; color: #666;">
-						{hero.achievementPoints} pts
+						Reading Age: {hero.readingAge}<br>Achievement Points: {hero.achievementPoints}
 					</p>
 					<p style="margin: 0.5rem 0 0; text-align: center;">
-						<a href={editUrl}>Edit avatar</a>
+						<a href={editAvatarUrl}>Edit avatar</a> - <a href={editDetailsUrl}>Edit details</a>
 					</p>
 				</li>
 			{/each}

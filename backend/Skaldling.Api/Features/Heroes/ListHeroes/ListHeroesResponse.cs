@@ -5,6 +5,7 @@ public record ListHeroesResponse(HeroSummaryDto[] Heroes);
 public record HeroSummaryDto(
     Guid Id,
     string Name,
+    int ReadingAge,
     int AchievementPoints,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,

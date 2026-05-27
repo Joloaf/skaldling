@@ -7,14 +7,9 @@ public class ListSpritesHandler
 {
     private readonly SkaldlingDbContext _db;
 
-    public ListSpritesHandler(SkaldlingDbContext db)
-    {
-        _db = db;
-    }
+    public ListSpritesHandler(SkaldlingDbContext db) => _db = db;
 
-    public async Task<ListSpritesResponse> HandleAsync(
-        ListSpritesQuery query,
-        CancellationToken cancellationToken)
+    public async Task<ListSpritesResponse> HandleAsync(ListSpritesQuery query, CancellationToken cancellationToken)
     {
         var q = _db.Sprites.AsQueryable();
 

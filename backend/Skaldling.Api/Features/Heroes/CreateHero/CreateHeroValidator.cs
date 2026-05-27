@@ -14,6 +14,10 @@ public class CreateHeroValidator : AbstractValidator<CreateHeroCommand>
             .Matches(@"^[\p{L}\p{N}\s\-']+$")
                 .WithMessage("Hero name can only contain letters, numbers, spaces, hyphens, and apostrophes.");
 
+        RuleFor(c => c.ReadingAge)
+            .InclusiveBetween(4, 12)
+            .WithMessage("Reading age must be between 4 and 12.");
+
         RuleFor(c => c.AvatarSpriteIds).Cascade(CascadeMode.Stop)
             .NotNull().WithMessage("Hero avatar selection is required.")
             .Must(ids => ids.Length >= 1).WithMessage("Hero avatar must include at least one sprite.")

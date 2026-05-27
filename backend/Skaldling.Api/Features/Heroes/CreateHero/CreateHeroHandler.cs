@@ -47,6 +47,7 @@ public class CreateHeroHandler
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
+            ReadingAge = command.ReadingAge,
             AchievementPoints = 0,
             CreatedAt = now,
             UpdatedAt = now,
@@ -56,6 +57,6 @@ public class CreateHeroHandler
         _db.Heroes.Add(hero);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return (Outcome.HeroCreated, new CreateHeroResponse(hero.Id, hero.Name, hero.CreatedAt, command.AvatarSpriteIds));
+        return (Outcome.HeroCreated, new CreateHeroResponse(hero.Id, hero.Name, hero.ReadingAge, hero.CreatedAt, command.AvatarSpriteIds));
     }
 }

@@ -19,6 +19,7 @@
 	let pageState: PageState = $state({ status: 'loading' });
 	let createState: CreateState = $state({ status: 'idle' });
 	let name = $state('');
+	let readingAge = $state(7);
 	let selections: Record<string, string> = $state({});
 
 	const DEFAULTS: Record<string, string> = {
@@ -55,7 +56,7 @@
 	async function createHero() {
 		createState = { status: 'creating' };
 		const avatarSpriteIds = Object.values(selections);
-		const result = await heroesApi.create({ name, avatarSpriteIds });
+		const result = await heroesApi.create({ name, readingAge, avatarSpriteIds });
 		if (result.ok) {
 			createState = {
 				status: 'success',
@@ -76,7 +77,7 @@
 	<p style="color: crimson">Failed to load sprite catalog: {pageState.problem.title ?? 'unknown error'}</p>
 {:else if pageState.status === 'loaded'}
 	<form onsubmit={(e) => { e.preventDefault(); createHero(); }}>
-		<div style="margin-bottom: 1em;">
+		<div style="margin-bottom: 1rem;">
 			<label>
 				Hero Name:
 				<input
@@ -86,6 +87,20 @@
 					disabled={createState.status === 'creating'}
 				/>
 			</label>
+		</div>
+
+		<div style="margin-bottom: 1rem;">
+			<label>
+				Reading age:
+				<select bind:value={readingAge}>
+					{#each [4, 5, 6, 7, 8, 9, 10, 11, 12] as age (age)}
+						<option value={age}>{age}</option>
+					{/each}
+				</select>
+			</label>
+			<small style="display: block; color: #666; margin-top: 0.25rem;">
+				The story will target this reading comfort level — pick the level that matches your child's reading, not necessarily their age.
+			</small>
 		</div>
 
 		<AvatarBuilder catalog={pageState.catalog} bind:selections={selections} />

@@ -34,17 +34,19 @@ public class CreateHeroHandlerTests : IDisposable  // Fresh SQLite db for each t
         // Happy path - Hero with all required avatar sprites, one of each type
         var allDefaultSprites = await GetCompleteAvatarSpriteIds();
         var handler = new CreateHeroHandler(_db, _time);
-        var command = new CreateHeroCommand("Thorbjörn", allDefaultSprites);
+        var command = new CreateHeroCommand("Thorbjörn", 7, allDefaultSprites);
         var (outcome, response) = await handler.HandleAsync(command, CancellationToken.None);
 
         outcome.Should().Be(CreateHeroHandler.Outcome.HeroCreated);
         response.Should().NotBeNull();
         response!.Name.Should().Be("Thorbjörn");
+        response.ReadingAge.Should().Be(7);
         response.AvatarSpriteIds.Should().BeEquivalentTo(allDefaultSprites);
 
         var stored = await _db.Heroes.FindAsync(response.Id);
         stored.Should().NotBeNull();
         stored!.Name.Should().Be("Thorbjörn");
+        stored.ReadingAge.Should().Be(7);
     }
 
     [Fact]
@@ -54,7 +56,7 @@ public class CreateHeroHandlerTests : IDisposable  // Fresh SQLite db for each t
         var validSprites = await GetCompleteAvatarSpriteIds();
         validSprites[0] = Guid.NewGuid();
         var handler = new CreateHeroHandler(_db, _time);
-        var command = new CreateHeroCommand("Test", validSprites);
+        var command = new CreateHeroCommand("Test", 7, validSprites);
         var (outcome, _) = await handler.HandleAsync(command, CancellationToken.None);
 
         outcome.Should().Be(CreateHeroHandler.Outcome.UnknownSpriteIds);
@@ -79,7 +81,7 @@ public class CreateHeroHandlerTests : IDisposable  // Fresh SQLite db for each t
         };
 
         var handler = new CreateHeroHandler(_db, _time);
-        var command = new CreateHeroCommand("Test", ids);
+        var command = new CreateHeroCommand("Test", 7, ids);
         var (outcome, _) = await handler.HandleAsync(command, CancellationToken.None);
 
         outcome.Should().Be(CreateHeroHandler.Outcome.DuplicateTypes);
@@ -102,7 +104,7 @@ public class CreateHeroHandlerTests : IDisposable  // Fresh SQLite db for each t
         };
 
         var handler = new CreateHeroHandler(_db, _time);
-        var command = new CreateHeroCommand("Test", ids);
+        var command = new CreateHeroCommand("Test", 7, ids);
         var (outcome, _) = await handler.HandleAsync(command, CancellationToken.None);
 
         outcome.Should().Be(CreateHeroHandler.Outcome.MissingTypes);

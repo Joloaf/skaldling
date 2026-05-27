@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 	import { heroesApi, type HeroDto } from '$lib/api/heroes';
 	import { spritesApi, type SpriteDto } from '$lib/api/sprites';
 	import type { ProblemDetails } from '$lib/api/client';
@@ -68,7 +69,7 @@
 	}
 </script>
 
-<h1>Edit Hero Avatar</h1>
+<h1>Edit hero avatar</h1>
 
 {#if pageState.status === 'loading'}
 	<p>Loading…</p>
@@ -87,11 +88,14 @@
 		</button>
 
 		{#if saveState.status === 'saved'}
-			<span style="margin-left: 0.5rem; color: green;">Saved ✓</span>
+			<span style="margin-left: 0.5rem; color: forestgreen;">Saved ✓</span>
 		{:else if saveState.status === 'error'}
 			<span style="margin-left: 0.5rem; color: crimson;">
 				Save failed: {saveState.problem.title ?? 'unknown error'}
 			</span>
 		{/if}
 	</div>
+	<p style="margin-top: 2rem;">
+		<a href={resolve('/heroes/[id]/details', { id: heroId })}>Edit details</a>
+	</p>
 {/if}
