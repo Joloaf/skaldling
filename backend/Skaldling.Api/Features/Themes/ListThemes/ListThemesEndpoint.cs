@@ -9,7 +9,7 @@ public static class ListThemesEndpoint
             CancellationToken cancellationToken) =>
         {
             var query = new ListThemesQuery();
-            var response = await handler.HandleAsyn(query, cancellationToken);
+            var response = await handler.HandleAsync(query, cancellationToken);
             return Results.Ok(response);
         });
 

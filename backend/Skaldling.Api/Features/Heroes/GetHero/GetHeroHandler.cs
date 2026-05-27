@@ -22,7 +22,7 @@ public class GetHeroHandler
             .AsNoTracking()
             .Where(a => a.HeroId == heroId
                 && a.Status != AdventureStatus.Completed
-                && a.Status == AdventureStatus.Abandoned)
+                && a.Status != AdventureStatus.Abandoned)
             .Select(a => new { a.Id, a.Title })
             .FirstOrDefaultAsync(cancellationToken);
 

@@ -9,7 +9,7 @@ public class ListThemesHandler
 
     public ListThemesHandler(SkaldlingDbContext db) => _db = db;
 
-    public async Task<ListThemesResponse> HandleAsyn(ListThemesQuery query, CancellationToken cancellationToken)
+    public async Task<ListThemesResponse> HandleAsync(ListThemesQuery query, CancellationToken cancellationToken)
     {
         var rows = await _db.Themes
             .AsNoTracking()
