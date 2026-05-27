@@ -13,6 +13,8 @@ using Skaldling.Api.Features.Themes.ListThemes;
 using Skaldling.Api.Features.Adventures.CreateAdventure;
 using Skaldling.Api.Infrastructure.Errors;
 using Skaldling.Api.Infrastructure.Persistence;
+using Skaldling.Api.Infrastructure.Configuration;
+using Skaldling.Api.Infrastructure.StoryGeneration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +41,13 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateHeroValidator>();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+// Register LLM integration configuration
+builder.Services.Configure<AnthropicOptions>(builder.Configuration.GetSection("Anthropic"));
+builder.Services.Configure<StoryGeneratorOptions>(builder.Configuration.GetSection("StoryGenerator"));
+
+// Register story generation infrastructure
+builder.Services.AddScoped<HeroContextAssembler>();
 
 // Register feature handlers
 builder.Services.AddScoped<CreateHeroHandler>();
