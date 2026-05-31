@@ -44,11 +44,23 @@ export type CreateAdventureResponse = {
 	createdAt: string;
 };
 
+// POST /api/adventures/{id}/generate
+export type GenerateStoryCommand = Record<string, never>;
+
+export type GenerateStoryResponse = {
+	adventureId: string;
+	status: 'Draft' | 'Generating' | 'Ready' | 'Active' | 'Completed' | 'Abandoned';
+	updatedAt: string;
+};
+
 export const adventuresApi = {
 	listThemes(): Promise<ApiResult<ListThemesResponse>> {
 		return apiGet<ListThemesResponse>('/api/themes');
 	},
 	create(command: CreateAdventureCommand): Promise<ApiResult<CreateAdventureResponse>> {
 		return apiPost<CreateAdventureResponse, CreateAdventureCommand>('/api/adventures', command);
+	},
+	generate(id: string): Promise<ApiResult<GenerateStoryResponse>> {
+		return apiPost<GenerateStoryResponse, GenerateStoryCommand>(`/api/adventures/${id}/generate`, {});
 	}
 };

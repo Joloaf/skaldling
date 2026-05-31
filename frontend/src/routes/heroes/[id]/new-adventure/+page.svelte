@@ -6,7 +6,8 @@
 		adventuresApi,
 		type ThemeDto,
 		type CreateAdventureCommand,
-		type NarrativeStyle
+		type NarrativeStyle,
+		type GenerateStoryResponse
 	} from '$lib/api/adventures';
 	import type { ProblemDetails } from '$lib/api/client';
 
@@ -22,8 +23,15 @@
 		| { status: 'success'; adventureId: string; title: string }
 		| { status: 'error'; problem: ProblemDetails };
 
+	type GenerateState =
+		| { status: 'idle' }
+		| { status: 'generating' }
+		| { status: 'generated'; storyStatus: GenerateStoryResponse['status'] }
+		| { status: 'error'; problem: ProblemDetails };
+
 	let pageState: PageState = $state({ status: 'loading' });
 	let submitState: SubmitState = $state({ status: 'idle' });
+	let generateState: GenerateState = $state({ status: 'idle' });
 
 	const heroId = page.params.id!;
 
@@ -127,6 +135,16 @@
 			submitState = { status: 'error', problem: result.problem };
 		}
 	}
+
+	async function generateStory(adventureId: string) {
+		generateState = { status: 'generating' };
+		const result = await adventuresApi.generate(adventureId);
+		if (result.ok) {
+			generateState = { status: 'generated', storyStatus: result.data.status };
+		} else {
+			generateState = { status: 'error', problem: result.problem };
+		}
+	}
 </script>
 
 <h1>New adventure</h1>
@@ -143,7 +161,24 @@
 {:else if pageState.status === 'loaded'}
 	{#if submitState.status === 'success'}
 		<p style="color: forestgreen;">Adventure "<strong>{submitState.title}</strong>" created!</p>
-		<p style="margin-top: 1rem;"><a href={resolve('/heroes')}>Back to dashboard</a></p>
+		{#if generateState.status === 'idle'}
+			<div style="margin-top: 1rem;">
+				<button onclick={() => generateStory(submitState.status === 'success' ? submitState.adventureId : '')}
+					style="padding: 0.5rem 1rem; font-weight: 600;">Generate story</button>
+				<small style="display: block; color: #666; margin-top: 0.5rem;">Generation typically takes 5-10 seconds.</small>
+			</div>
+		{:else if generateState.status === 'generating'}
+			<p style="margin-top: 1rem; color: #666;">Generating story… this can take up to 10 seconds.</p>
+		{:else if generateState.status === 'generated'}
+			<p style="color: forestgreen; margin-top: 1rem;">Story ready! Status: <strong>{generateState.storyStatus}</strong>.</p>
+		{:else if generateState.status === 'error'}
+			<div style="color: crimson; margin-top: 1rem;">
+				<p>Generation failed: {generateState.problem.title ?? 'unknown error'}.</p>
+				<button onclick={() => generateStory(submitState.status === 'success' ? submitState.adventureId : '')}
+					style="margin-top: 0.5rem; padding: 0.4rem 0.8rem;">Try again</button>
+			</div>
+		{/if}
+		<p style="margin-top: 1.5rem;"><a href={resolve('/heroes')}>Back to dashboard</a></p>
 	{:else}
 		<p>Designing an adventure for <strong>{pageState.hero.name}</strong>.</p>
 		<form onsubmit={(e) => { e.preventDefault(); submit(); }}>
