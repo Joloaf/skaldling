@@ -14,6 +14,9 @@ using Skaldling.Api.Features.Themes.ListThemes;
 using Skaldling.Api.Features.Adventures.CreateAdventure;
 using Skaldling.Api.Features.Adventures.GenerateStory;
 using Skaldling.Api.Features.Adventures.GetAdventure;
+using Skaldling.Api.Features.Adventures.StartAdventure;
+using Skaldling.Api.Features.Adventures.UpdateTaskCompletion;
+using Skaldling.Api.Features.Adventures.ConfirmFinaleReward;
 using Skaldling.Api.Features.Dev.PreviewStories;
 using Skaldling.Api.Infrastructure.Errors;
 using Skaldling.Api.Infrastructure.Persistence;
@@ -73,6 +76,9 @@ builder.Services.AddScoped<ListThemesHandler>();
 builder.Services.AddScoped<CreateAdventureHandler>();
 builder.Services.AddScoped<GenerateStoryHandler>();
 builder.Services.AddScoped<GetAdventureHandler>();
+builder.Services.AddScoped<StartAdventureHandler>();
+builder.Services.AddScoped<UpdateTaskCompletionHandler>();
+builder.Services.AddScoped<ConfirmFinaleRewardHandler>();
 builder.Services.AddScoped<PreviewStoriesHandler>();
 
 // SvelteKit CORS registration
@@ -117,5 +123,8 @@ app.MapListThemes();
 app.MapCreateAdventure();
 app.MapGenerateStory();
 app.MapGetAdventure();
+app.MapStartAdventure();
+app.MapUpdateTaskCompletion();
+app.MapConfirmFinaleReward();
 
 app.Run();

@@ -112,7 +112,7 @@
 		task.pointValue = POINTS_BY_DIFFICULTY[difficulty];
 	}
 
-	async function submit() {
+	async function createAdventure() {
 		submitState = { status: 'submitting' };
 		const command: CreateAdventureCommand = {
 			heroId,
@@ -181,7 +181,7 @@
 		<p style="margin-top: 1.5rem;"><a href={resolve('/heroes')}>Back to dashboard</a></p>
 	{:else}
 		<p>Designing an adventure for <strong>{pageState.hero.name}</strong>.</p>
-		<form onsubmit={(e) => { e.preventDefault(); submit(); }}>
+		<form onsubmit={(e) => { e.preventDefault(); createAdventure(); }}>
 
 			<!-- Title -->
 			<div style="margin-bottom: 1rem;">
@@ -320,9 +320,7 @@
 								disabled={day.tasks.length <= 1}
 								title={day.tasks.length <= 1 ? 'Each day must have at least one challenge' : 'Remove challenge'}
 								style="background: none; border: 1px solid #ccc; padding: 0.2rem 0.5rem; cursor: pointer;"
-							>
-								✕
-							</button>
+							>x</button>
 						</div>
 					{/each}
 

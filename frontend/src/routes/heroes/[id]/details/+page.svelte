@@ -40,7 +40,7 @@
 		pageState = { status: 'loaded', hero: result.data };
 	}
 
-	async function save() {
+	async function saveDetails() {
 		saveState = { status: 'saving' };
 		const result = await heroesApi.updateDetails(heroId, { name, readingAge });
 		if (result.ok) {
@@ -65,7 +65,15 @@
 {:else if pageState.status === 'loaded'}
 	<p>Editing details for <strong>{pageState.hero.name}</strong>.</p>
 
-	<form onsubmit={(e) => { e.preventDefault(); save(); }}>
+	{#if pageState.hero.activeAdventureId}
+		<p style="margin: 0.5rem 0 1.5rem; padding: 0.5rem 0.75rem; background: #f0f8f0; border-left: 3px solid forestgreen; border-radius: 4px;">
+			<a href={resolve('/heroes/[id]/play', { id: heroId })}
+				 style="color: forestgreen; text-decoration: none;">{pageState.hero.name} is on an adventure:
+			<strong>{pageState.hero.activeAdventureTitle}</strong></a>
+		</p>
+	{/if}
+
+	<form onsubmit={(e) => { e.preventDefault(); saveDetails(); }}>
 		<div style="margin-bottom: 1rem;">
 			<label>
 				Hero name:
@@ -100,7 +108,7 @@
 			</button>
 
 			{#if saveState.status === 'saved'}
-				<span style="margin-left: 0.5rem; color: forestgreen;">Saved ✓</span>
+				<span style="margin-left: 0.5rem; color: forestgreen;">Saved</span>
 			{:else if saveState.status === 'error'}
 				<div style="margin-top: 0.5rem; color: crimson;">
 					<p>Save failed: {saveState.problem.title ?? 'unknown error'}</p>
@@ -119,4 +127,20 @@
 	<p style="margin-top: 2rem;">
 		<a href={resolve('/heroes/[id]/avatar-builder', { id: heroId })}>Edit avatar</a>
 	</p>
+
+	{#if pageState.hero.pastAdventures.length > 0}
+		<section style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
+			<h3 style="margin-bottom: 0.5rem;">Past adventures</h3>
+			<ul style="list-style: none; padding: 0; margin: 0;">
+				{#each pageState.hero.pastAdventures as past (past.id)}
+					<li style="margin: 0.5rem 0; padding: 0.25rem 0; color: #555;">
+						<strong>{past.title}</strong>
+						<span style="margin-left: 0.5rem; font-size: 0.9em; color: #888;">
+							- completed {new Date(past.completedAt).toLocaleDateString()}
+						</span>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
 {/if}

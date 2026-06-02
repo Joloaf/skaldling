@@ -1,4 +1,4 @@
-import { apiGet, apiPost, type ApiResult } from './client';
+import { apiGet, apiPost, apiPut, type ApiResult } from './client';
 
 // GET /api/themes
 export type ThemeDto = {
@@ -49,8 +49,87 @@ export type GenerateStoryCommand = Record<string, never>;
 
 export type GenerateStoryResponse = {
 	adventureId: string;
-	status: 'Draft' | 'Generating' | 'Ready' | 'Active' | 'Completed' | 'Abandoned';
+	status: AdventureStatus;
 	updatedAt: string;
+};
+
+// Adventure status type shared by all adventure responses
+export type AdventureStatus =
+	| 'Draft'
+	| 'Generating'
+	| 'Ready'
+	| 'Active'
+	| 'Completed'
+	| 'Abandoned'
+
+// GET /api/adventures/{id}
+export type GetAdventureResponse = {
+	id: string;
+	heroId: string;
+	heroName: string;
+	heroAchievementPoints: number;
+	title: string;
+	themeName: string;
+	tone: 'Cozy' | 'Epic' | 'Mysterious' | 'Comedic' | 'Spooky';
+	narrativeStyle: NarrativeStyle;
+	moral: string | null;
+	finaleReward: string | null;
+	status: AdventureStatus;
+	createdAt: string;
+	updatedAt: string;
+	days: PlayDayDto[];
+};
+
+export type PlayDayDto = {
+	id: string;
+	dayNumber: number;
+	narrativeIntro: string | null;
+	narrativeConvergence: string | null;
+	nodes: PlayNodeDto[];
+};
+
+export type PlayNodeDto = {
+	id: string;
+	order: number;
+	narrativeText: string | null;
+	sceneType: 'Quest' | 'Encounter' | 'Discovery' | 'Reflection' | 'Climax' | 'Resolution' | null;
+	adventureTask: PlayAdventureTaskDto;
+};
+
+export type PlayAdventureTaskDto = {
+	id: string;
+	description: string;
+	difficulty: 'Easy' | 'Medium' | 'Hard';
+	pointValue: number;
+	isCompleted: boolean;
+};
+
+// POST /api/adventures/{id}/start
+export type StartAdventureResponse = {
+	adventureId: string;
+	status: AdventureStatus;
+	updatedAt: string;
+};
+
+// PUT /api/adventures/{adventureId}/tasks/{taskId}/completion
+export type UpdateTaskCompletionCommand = {
+	isCompleted: boolean;
+};
+
+export type UpdateTaskCompletionResponse = {
+	taskId: string;
+	isCompleted: boolean;
+	adventureScore: number;
+	updatedAt: string;
+};
+
+// POST /api/adventures/{id}/confirm-finale
+export type ConfirmFinaleRewardResponse = {
+	adventureId: string;
+	status: AdventureStatus;
+	heroAchievementPoints: number;
+	earnedScore: number;
+	completedAt: string;
 };
 
 export const adventuresApi = {
@@ -62,5 +141,19 @@ export const adventuresApi = {
 	},
 	generate(id: string): Promise<ApiResult<GenerateStoryResponse>> {
 		return apiPost<GenerateStoryResponse, GenerateStoryCommand>(`/api/adventures/${id}/generate`, {});
+	},
+	get(id: string): Promise<ApiResult<GetAdventureResponse>> {
+		return apiGet<GetAdventureResponse>(`/api/adventures/${id}`);
+	},
+	start(id: string): Promise<ApiResult<StartAdventureResponse>> {
+		return apiPost<StartAdventureResponse, Record<string, never>>(`/api/adventures/${id}/start`, {});
+	},
+	updateTaskCompletion(adventureId: string, taskId: string, command: UpdateTaskCompletionCommand
+	): Promise<ApiResult<UpdateTaskCompletionResponse>> {
+		return apiPut<UpdateTaskCompletionResponse, UpdateTaskCompletionCommand>
+		(`/api/adventures/${adventureId}/tasks/${taskId}/completion`, command);
+	},
+	confirmFinale(id: string): Promise<ApiResult<ConfirmFinaleRewardResponse>> {
+		return apiPost<ConfirmFinaleRewardResponse, Record<string, never>>(`/api/adventures/${id}/confirm-finale`, {});
 	}
 };

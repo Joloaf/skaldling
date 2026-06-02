@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { heroesApi, type HeroDto } from '$lib/api/heroes';
+	import { heroesApi, type HeroSummaryDto } from '$lib/api/heroes';
 	import { spritesApi, type SpriteDto } from '$lib/api/sprites';
 	import type { ProblemDetails } from '$lib/api/client';
 
 	type PageState =
 		| { status: 'loading' }
-		| { status: 'loaded'; heroes: HeroDto[]; catalog: SpriteDto[] }
+		| { status: 'loaded'; heroes: HeroSummaryDto[]; catalog: SpriteDto[] }
 		| { status: 'error'; problem: ProblemDetails };
 
 	let pageState: PageState = $state({ status: 'loading' });

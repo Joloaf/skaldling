@@ -9,4 +9,10 @@ public record GetHeroResponse(
     DateTimeOffset UpdatedAt,
     Guid[] AvatarSpriteIds,
     Guid? ActiveAdventureId,
-    string? ActiveAdventureTitle);
+    string? ActiveAdventureTitle,
+    PastAdventureSummary[] PastAdventures);
+
+    public record PastAdventureSummary(
+        Guid Id,
+        string Title,
+        DateTimeOffset CompletedAt);

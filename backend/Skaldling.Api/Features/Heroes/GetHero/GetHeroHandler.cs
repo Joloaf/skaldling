@@ -26,6 +26,13 @@ public class GetHeroHandler
             .Select(a => new { a.Id, a.Title })
             .FirstOrDefaultAsync(cancellationToken);
 
+        var pastAdventures = await _db.Adventures
+            .AsNoTracking()
+            .Where(a => a.HeroId == heroId && a.Status == AdventureStatus.Completed)
+            .OrderByDescending(a => a.UpdatedAt)
+            .Select(a => new PastAdventureSummary(a.Id, a.Title, a.UpdatedAt))
+            .ToArrayAsync(cancellationToken);
+
         return new GetHeroResponse(
             hero.Id,
             hero.Name,
@@ -35,6 +42,7 @@ public class GetHeroHandler
             hero.UpdatedAt,
             hero.AvatarConfig.SpriteIds,
             activeAdventure?.Id,
-            activeAdventure?.Title);
+            activeAdventure?.Title,
+            pastAdventures);
     }
 }

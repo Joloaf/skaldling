@@ -15,6 +15,12 @@ export type CreateHeroResponse = {
 	avatarSpriteIds: string[];
 };
 
+export type PastAdventureSummary = {
+	id: string;
+	title: string;
+	completedAt: string;
+}
+
 // GET /api/heroes/{id}
 export type HeroDto = {
 	id: string;
@@ -26,11 +32,22 @@ export type HeroDto = {
 	avatarSpriteIds: string[];
 	activeAdventureId?: string;
 	activeAdventureTitle?: string;
+	pastAdventures: PastAdventureSummary[];
 };
 
-// GET ALL /api/heroes
+// GET /api/heroes
+export type HeroSummaryDto = {
+	id: string;
+	name: string;
+	readingAge: number;
+	achievementPoints: number;
+	createdAt: string;
+	updatedAt: string;
+	avatarSpriteIds: string[];
+};
+
 export type ListHeroesResponse = {
-	heroes: HeroDto[];
+	heroes: HeroSummaryDto[];
 };
 
 // PUT /api/heroes/{id}/avatar
