@@ -8,9 +8,10 @@
 		type PlayAdventureTaskDto
 	} from '$lib/api/adventures';
 	import type { ProblemDetails } from '$lib/api/client';
-	import DayCard from '$lib/components/play/DayCard.svelte';
+	import type { FlatNode, ProgressState } from '$lib/components/play/types';
+	import PlayMap from '$lib/components/play/PlayMap.svelte';
 	import CompletionCelebration from '$lib/components/play/CompletionCelebration.svelte';
-	import type { ProgressState } from '$lib/components/play/types';
+	import StoryBook from '$lib/components/play/StoryBook.svelte';
 
 	type LoadState =
 		| { status: 'loading' }
@@ -22,6 +23,7 @@
 
 	let loadState = $state<LoadState>({ status: 'loading' });
 	let lastEarnedScore = $state<number | null>(null);
+	let navigateToNodeId = $state<string | null>(null);
 
 	$effect(() => {
 		loadEverything();
@@ -47,18 +49,39 @@
 		loadState = { status: 'loaded', hero, adventure: adventureResult.data };
 	}
 
-	const dayStates: ProgressState[] = $derived.by(() => {
+	const flatNodes: FlatNode[] = $derived.by(() => {
 		if (loadState.status !== 'loaded') return [];
-		const days = loadState.adventure.days;
-		return days.map((day, idx): ProgressState => {
-			const allTasksComplete = day.nodes.every((n) => n.adventureTask.isCompleted);
-			if (allTasksComplete) return 'completed';
-			const earlierAllComplete = days
-				.slice(0, idx)
-				.every((d) => d.nodes.every((n) => n.adventureTask.isCompleted));
-			return earlierAllComplete ? 'current' : 'locked';
-		});
+		const list: FlatNode[] = [];
+		let flatIndex = 0;
+		let foundCurrent = false;
+
+		for (const day of loadState.adventure.days) {
+			day.nodes.forEach((node, nodeIndexInDay) => {
+				let state: ProgressState;
+				if (node.adventureTask.isCompleted) {
+					state = 'completed';
+				} else if (!foundCurrent) {
+					state = 'current';
+					foundCurrent = true;
+				} else {
+					state = 'locked';
+				}
+				list.push({
+					node,
+					dayNumber: day.dayNumber,
+					nodeIndexInDay,
+					flatIndex: flatIndex++,
+					state,
+					isFirstOfDay: nodeIndexInDay === 0
+				});
+			});
+		}
+		return list;
 	});
+
+	const currentNode: FlatNode | null = $derived(
+		flatNodes.find((fn) => fn.state === 'current') ?? null
+	);
 
 	const adventureScore: number = $derived(
 		loadState.status === 'loaded'
@@ -78,11 +101,7 @@
 	);
 
 	const allTasksComplete: boolean = $derived(
-		loadState.status === 'loaded'
-			? loadState.adventure.days
-				.flatMap((d) => d.nodes)
-				.every((n) => n.adventureTask.isCompleted)
-			: false
+		flatNodes.length > 0 && flatNodes.every((fn) => fn.state === 'completed')
 	);
 
 	function findTask(
@@ -129,6 +148,11 @@
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
 	}
+
+	function handleMapNodeClick(nodeId: string) {
+		navigateToNodeId = null;
+		setTimeout(() => (navigateToNodeId = nodeId), 0);
+	}
 </script>
 
 <svelte:head>
@@ -155,54 +179,54 @@
 				<span style="margin-left: 1rem;">Adventure score: <strong>{adventureScore} / {maxAdventureScore}</strong></span>
 			{/if}
 		</p>
-		<p class="view-switch"><a href={resolve('/heroes/[id]/play-map', { id: heroId })}>Switch to map view</a></p>
+		<p class="view-switch"><a href={resolve('/heroes/[id]/play', { id: heroId })}>Switch to list view</a></p>
 	</header>
 
 	{#if adventure.status === 'Ready'}
 		<section class="ready-card">
-			<h2 style="margin-top: 0;">The path awaits</h2>
-			<p style="font-style: italic; color: #555;">{adventure.days[0]?.narrativeIntro ?? '(no intro)'}</p>
+			<h2>The path awaits</h2>
+			<p class="ready-intro">{adventure.days[0]?.narrativeIntro ?? '(no intro)'}</p>
 			<button class="start-btn" onclick={handleStart}>Begin the journey</button>
 		</section>
-	{:else if adventure.status === 'Active'}
-		{#each adventure.days as day, idx (day.id)}
-			<DayCard
-				{day}
-				state={dayStates[idx]}
-				onTaskToggle={handleTaskToggle} />
-		{/each}
+	{:else}
+		<div class="play-layout">
+			<div class="map-section">
+				<PlayMap {flatNodes} onNodeClick={handleMapNodeClick} />
 
-		{#if allTasksComplete}
-			<section class="finale-cta">
-				<h2>The journey ends</h2>
-				{#if adventure.finaleReward}
-					<p>Finale reward: <strong>{adventure.finaleReward}</strong></p>
+				{#if adventure.status === 'Active' && allTasksComplete}
+					<section class="finale-cta">
+						<h2>The journey ends</h2>
+						{#if adventure.finaleReward}
+							<p>Finale reward: <strong>{adventure.finaleReward}</strong></p>
+						{/if}
+						<button class="finale-btn" onclick={handleConfirmFinale}>Confirm reward delivered</button>
+					</section>
+				{:else if adventure.status === 'Completed'}
+					<CompletionCelebration
+						heroName={hero.name}
+						earnedScore={lastEarnedScore}
+						lifetimePoints={hero.achievementPoints}
+						{heroId} />
 				{/if}
-				<button class="finale-btn" onclick={handleConfirmFinale}>Confirm reward delivered</button>
-			</section>
-		{/if}
-	{:else if adventure.status === 'Completed'}
-		<CompletionCelebration
-			heroName={hero.name}
-			earnedScore={lastEarnedScore}
-			lifetimePoints={hero.achievementPoints}
-			{heroId} />
+			</div>
 
-		{#each adventure.days as day, idx (day.id)}
-			<DayCard
-				{day}
-				state={dayStates[idx]}
-				readOnly={true}
+			<StoryBook
+				days={adventure.days}
+				currentNodeId={currentNode?.node.id ?? null}
+				{navigateToNodeId}
 				onTaskToggle={handleTaskToggle} />
-		{/each}
+		</div>
 	{/if}
 {/if}
 
 <style>
     .play-header {
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
         border-bottom: 1px solid #ddd;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
     }
     .play-header h1 {
         margin: 0;
@@ -211,7 +235,6 @@
         margin: 0.5rem 0 0;
         color: #666;
     }
-
     .view-switch {
         margin: 0.5rem 0 0;
         font-size: 0.85rem;
@@ -225,14 +248,24 @@
     }
 
     .ready-card {
-        padding: 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 1.5rem;
         border: 1px solid #ddd;
         border-radius: 6px;
         background: #fafafa;
+        text-align: center;
+    }
+    .ready-card h2 {
+        margin-top: 0;
+    }
+    .ready-intro {
+        font-style: italic;
+        color: #555;
     }
     .start-btn {
         margin-top: 1rem;
-        padding: 0.5rem 1rem;
+        padding: 0.6rem 1.4rem;
         background: forestgreen;
         color: white;
         border: none;
@@ -241,8 +274,22 @@
         font-size: 1rem;
     }
 
+    .play-layout {
+        display: grid;
+        grid-template-columns: minmax(320px, 500px) 1fr;
+        gap: 1.5rem;
+        align-items: start;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .map-section {
+        position: sticky;
+        top: 1rem;
+    }
+
     .finale-cta {
-        margin-top: 2rem;
+        margin-top: 1.5rem;
         padding: 1.5rem;
         background: linear-gradient(to bottom, #fffcf0, #fff8e0);
         border: 2px solid goldenrod;
@@ -262,5 +309,14 @@
         border-radius: 4px;
         cursor: pointer;
         font-size: 1.1rem;
+    }
+
+    @media (max-width: 1024px) {
+        .play-layout {
+            grid-template-columns: 1fr;
+        }
+        .map-section {
+            position: static;
+        }
     }
 </style>

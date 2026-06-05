@@ -92,7 +92,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Expose Scalar UI + OpenAPI endpoints when running in dev
+// Expose Scalar UI + OpenAPI + Story Preview endpoints when running in dev
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
