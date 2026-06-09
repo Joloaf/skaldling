@@ -230,7 +230,7 @@
     }
     .page-indicator {
         font-family: Georgia, serif;
-        color: #5b3a29;
+        color: var(--text-muted);
         font-size: 0.85rem;
         font-variant: small-caps;
     }

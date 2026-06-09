@@ -1,0 +1,51 @@
+:root {
+    /* surfaces */
+    --bg: radial-gradient(120% 120% at 50% 0%, #2c2348 0%, #221a36 60%, #19132a 100%) no-repeat fixed;
+    --surface: #342a4f;
+    --surface-alt: #3c315a;
+    --border: rgba(255, 255, 255, 0.12);
+
+    /* text */
+    --text: #f3ecdd;
+    --text-muted: #b7aacb;
+
+    /* accents */
+    --accent: #46aab0;
+    --accent-tint: rgba(70, 170, 176, 0.18);
+    --accent-warm: #e0795a;
+    --accent-cool: #84b4cf;
+    --gold: #e8b14c;
+    --on-accent: #0f2d2f;
+
+    /* misc */
+    --radius: 12px;
+    --font-ui: system-ui, 'Segoe UI', Roboto, -apple-system, sans-serif;
+    --font-story: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-display: 'MedievalSharp', Georgia, serif;
+}
+
+html,
+body {
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    line-height: 1.5;
+}
+
+a {
+    color: var(--accent);
+}
+a:hover {
+    color: var(--accent-warm);
+}
+
+h1,
+h2,
+h3 {
+    color: var(--text);
+}

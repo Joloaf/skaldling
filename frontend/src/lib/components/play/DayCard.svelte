@@ -64,22 +64,15 @@
 <style>
     .day {
         margin: 1rem 0;
-        padding: 1rem;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+        padding: 1rem 1.25rem;
+        border: 1px solid #d9c89a;
+        border-radius: 10px;
+        background: #f5e8c4;
+        color: #3a2f1a;
     }
-    .day--completed {
-        background: #f5fff5;
-        border-color: #cde7c4;
-    }
-    .day--current {
-        background: #fffef0;
-        border-color: #e8dca0;
-    }
-    .day--locked {
-        background: #f5f5f5;
-        opacity: 0.6;
-    }
+    .day--completed { border-color: #8fae72; }
+    .day--current { border-color: goldenrod; box-shadow: 0 0 0 1px goldenrod; }
+    .day--locked { opacity: 0.5; }
 
     .day-header {
         display: flex;
@@ -127,7 +120,7 @@
     .node {
         margin: 1rem 0;
         padding: 0.5rem 0.5rem 0.5rem 1rem;
-        border-left: 2px solid #ddd;
+        border-left: 2px solid #d9c89a;
     }
     .node-narrative {
         margin: 0 0 0.5rem;

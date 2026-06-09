@@ -33,6 +33,7 @@
         border: 2px solid forestgreen;
         border-radius: 8px;
         text-align: center;
+        color: #1f3a23;
     }
     .completion h2 {
         margin-top: 0;
