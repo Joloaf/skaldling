@@ -20,7 +20,7 @@
 	{/if}
 	<p>Lifetime achievement points: <strong>{lifetimePoints}</strong></p>
 	<p style="margin-top: 1.5rem;">
-		<a href={resolve('/heroes/[id]/details', { id: heroId })}>Back to {heroName}'s page.</a>
+		<a href={resolve('/heroes/[id]/library', { id: heroId })}>See {heroName}'s adventure library</a>
 	</p>
 </section>
 

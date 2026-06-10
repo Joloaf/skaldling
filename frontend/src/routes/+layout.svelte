@@ -12,8 +12,6 @@
 
 	const PANELED = [
 		'/heroes/new',
-		'/heroes/[id]/details',
-		'/heroes/[id]/avatar-builder',
 		'/heroes/[id]/edit',
 		'/heroes/[id]/new-adventure'
 	];

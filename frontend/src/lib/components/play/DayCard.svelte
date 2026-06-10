@@ -82,6 +82,7 @@
     }
     .day-header h2 {
         margin: 0;
+        color: #3a2f1a;
     }
 
     .day-badge {
