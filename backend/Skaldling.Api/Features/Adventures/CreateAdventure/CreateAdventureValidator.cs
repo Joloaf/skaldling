@@ -13,11 +13,9 @@ public class CreateAdventureValidator : AbstractValidator<CreateAdventureCommand
             .NotEmpty().WithMessage("Adventure title is required.")
             .MaximumLength(200).WithMessage("Adventure title cannot exceed 200 characters.");
 
-        // Moral is optional (2026-05-26). MaximumLength accepts null.
         RuleFor(c => c.Moral)
             .MaximumLength(500).WithMessage("Moral cannot exceed 500 characters.");
 
-        // FinaleReward is optional (2026-05-26). Same shape as Moral.
         RuleFor(c => c.FinaleReward)
             .MaximumLength(200).WithMessage("Finale reward cannot exceed 200 characters.");
 
